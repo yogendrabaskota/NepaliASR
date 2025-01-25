@@ -8,7 +8,11 @@ const Navbar = () => {
         {/* Logo */}
         <div className="text-2xl font-bold">
           <a href="/" className="hover:text-blue-200">
-            Audio Recorder
+          <center>
+          Nepali Speech to Text Converter
+
+          </center>
+           
           </a>
         </div>
 

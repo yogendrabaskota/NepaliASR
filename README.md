@@ -84,11 +84,11 @@ project-root/
   - Python (Flask or FastAPI for handling API requests)
 
 - **ML**
-  - Recurrent Neural Network (RNN) for processing sprrch to text
+  - Recurrent Neural Network (RNN) for processing speech to text
 
 ## Output
 
-![App Screenshot](./)
+![App Screenshot](./speech/public/image.png)
 
 ## Contributing
 Contributions are welcome! Feel free to open an issue or submit a pull request.
