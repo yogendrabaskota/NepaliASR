@@ -4,8 +4,7 @@ from utils.transcription import transcribe_audio
 from utils.audio_utils import record_audio
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
-
+CORS(app)  
 @app.route("/record", methods=["POST"])
 def record():
     file_name = "recordings/input.wav"
