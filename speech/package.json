@@ -9,11 +9,11 @@
     "lint": "eslint .",
     "preview": "vite preview"
   },
- "dependencies": {
+  "dependencies": {
     "axios": "^1.7.9",
     "frontend": "file:",
-    "react-router-dom": "^7.1.1"
-
+    "react-router-dom": "^7.1.1",
+    "speech": "file:"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",

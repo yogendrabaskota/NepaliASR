@@ -18,7 +18,7 @@ def transcribe():
     transcription = transcribe_audio(file_name)
    # print(transcription)
     return jsonify({"transcription": transcription})
-
+   # print("nepali converted text",transcription)
 
 if __name__ == "__main__":
     app.run(debug=True)
