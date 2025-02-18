@@ -97,6 +97,6 @@ Contributions are welcome! Feel free to open an issue or submit a pull request.
 ---
 
 ## Feedback
-  If you have any feedback, please reach out to me at yogendrabaskota18@gmail.com  
+  If you have any feedback, please reach out to yogendrabaskota18@gmail.com , awasthintr07@gmail.com
 
 **Happy Coding!**
