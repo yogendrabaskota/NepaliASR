@@ -8,7 +8,7 @@ CORS(app)
 @app.route("/record", methods=["POST"])
 def record():
     file_name = "recordings/input.wav"
-    duration = request.json.get("duration", 5)
+    duration = request.json.get("duration", 30)
     record_audio(file_name, duration)
     return jsonify({"message": "Recording finished", "file_name": file_name})
 

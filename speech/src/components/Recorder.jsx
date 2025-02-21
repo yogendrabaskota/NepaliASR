@@ -85,7 +85,7 @@ const Recorder = () => {
     startVisualization(); // Start real-time visualization
     try {
       // Start recording
-      await axios.post("http://127.0.0.1:5000/record", { duration: 5 });
+      await axios.post("http://127.0.0.1:5000/record", { duration: 30 });
       alert("Recording finished.");
 
       // Stop visualization
