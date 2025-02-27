@@ -8,11 +8,8 @@ const Navbar = () => {
         {/* Logo */}
         <div className="text-2xl font-bold">
           <a href="/" className="hover:text-blue-200">
-          <center>
-          Nepali Speech to Text Converter
-
-          </center>
-           
+          
+            Nepali Speech to Text Converter
           </a>
         </div>
 
@@ -24,12 +21,12 @@ const Navbar = () => {
             </a>
           </li>
           <li>
-            <a href="#features" className="hover:text-blue-200">
+            <a href="/features" className="hover:text-blue-200">
               Features
             </a>
           </li>
           <li>
-            <a href="#about" className="hover:text-blue-200">
+            <a href="/about" className="hover:text-blue-200">
               About
             </a>
           </li>
