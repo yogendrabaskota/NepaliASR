@@ -1,6 +1,6 @@
 # Nepali Speech-to-Text Converter
 
-Nepali Speech-to-Text Converter is a simple web application that allows users to convert their Nepali speech into text. The app records your voice for 5 seconds and provides the transcription in real time.
+Nepali Speech-to-Text Converter is a simple web application that allows users to convert their Nepali speech into text. The app records your voice and provides the transcription in real time.
 
 ## Features
 - **Speech Recording**: Record Nepali speech with a single click.
@@ -48,8 +48,8 @@ Nepali Speech-to-Text Converter is a simple web application that allows users to
    ```
 
 2. Click on the "Start Recording" button.
-3. Speak in Nepali for 5 seconds.
-4. View the transcription in the "Live Transcription" section.
+3. Speak in Nepali language for the required time and click on 'stop' button when you finished speaking.
+4. View the transcription in the "Live Transcription" section. You can also copy the text by clicking 'copy' button available there.
 
 ## File Structure
 ```
