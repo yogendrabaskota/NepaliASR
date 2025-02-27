@@ -1,34 +1,53 @@
 import pyaudio
 import wave
+import threading
 
-def record_audio(file_name="recordings/input.wav", duration=5, sample_rate=16000):
+# Global variables for recording control
+recording = False
+audio_stream = None
+audio_frames = []
+p = pyaudio.PyAudio()
+
+
+def record_audio(file_name="recordings/input.wav", sample_rate=16000):
+    """
+    Start recording audio and save it to a file when stopped.
+    """
+    global recording, audio_stream, audio_frames
+    recording = True
     chunk = 1024  # Record in chunks of 1024 samples
     format = pyaudio.paInt16  # 16-bit resolution
     channels = 1  # Mono audio
-    rate = sample_rate
 
-    p = pyaudio.PyAudio()
-    print("Recording...")
+    print("Recording started...")
 
-    stream = p.open(format=format, channels=channels, rate=rate,
-                    input=True, frames_per_buffer=chunk)
+    # Open an audio stream
+    audio_stream = p.open(format=format, channels=channels, rate=sample_rate,
+                          input=True, frames_per_buffer=chunk)
+    
+    audio_frames = []
 
-    frames = []
-    for _ in range(0, int(rate / chunk * duration)):
-        data = stream.read(chunk)
-        frames.append(data)
+    while recording:
+        data = audio_stream.read(chunk)
+        audio_frames.append(data)
 
-    print("Recording finished.")
+    print("Recording stopped.")
 
-    stream.stop_stream()
-    stream.close()
-    p.terminate()
+    # Stop and close the stream
+    audio_stream.stop_stream()
+    audio_stream.close()
 
-    # Save as a WAV file
+    # Save the recorded audio to a WAV file
     with wave.open(file_name, 'wb') as wf:
         wf.setnchannels(channels)
         wf.setsampwidth(p.get_sample_size(format))
-        wf.setframerate(rate)
-        wf.writeframes(b''.join(frames))
+        wf.setframerate(sample_rate)
+        wf.writeframes(b''.join(audio_frames))
 
-    return file_name
+
+def stop_recording():
+    """
+    Stop the recording process.
+    """
+    global recording
+    recording = False  # This will break the recording loop
