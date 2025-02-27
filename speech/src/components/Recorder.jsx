@@ -7,12 +7,32 @@ const Recorder = () => {
   const [transcription, setTranscription] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [language, setLanguage] = useState("en-US");
+  const [timer, setTimer] = useState(30); // Timer state
   const canvasRef = useRef(null);
   const audioContextRef = useRef(null);
   const analyserRef = useRef(null);
   const animationRef = useRef(null);
+  const timerRef = useRef(null); // Ref for interval
 
-  // Visualization logic
+  useEffect(() => {
+    if (isRecording) {
+      setTimer(30); // Reset timer when recording starts
+      timerRef.current = setInterval(() => {
+        setTimer((prevTime) => {
+          if (prevTime <= 1) {
+            clearInterval(timerRef.current);
+            return 0;
+          }
+          return prevTime - 1;
+        });
+      }, 1000);
+    } else {
+      clearInterval(timerRef.current);
+    }
+
+    return () => clearInterval(timerRef.current); // Cleanup on unmount
+  }, [isRecording]);
+
   const drawVisualizer = () => {
     const canvas = canvasRef.current;
     const canvasCtx = canvas.getContext("2d");
@@ -83,6 +103,7 @@ const Recorder = () => {
     setIsRecording(true);
     setTranscription(""); // Clear previous transcription
     startVisualization(); // Start real-time visualization
+
     try {
       // Start recording
       await axios.post("http://127.0.0.1:5000/record", { duration: 30 });
@@ -90,6 +111,7 @@ const Recorder = () => {
 
       // Stop visualization
       stopVisualization();
+      setIsRecording(false);
 
       // Start transcription immediately after recording
       setIsLoading(true);
@@ -100,7 +122,6 @@ const Recorder = () => {
     } catch (error) {
       console.error("Error during recording or transcription:", error);
     } finally {
-      setIsRecording(false);
       setIsLoading(false);
       stopVisualization(); // Ensure visualization is stopped
     }
@@ -126,6 +147,14 @@ const Recorder = () => {
           <option value="ne-NP">Nepali</option>
         </select>
       </div>
+
+      {/* Timer Display */}
+      {isRecording && (
+        <div className="timer mb-4 text-lg font-bold text-red-600">
+          Recording Time Left: {timer}s
+        </div>
+      )}
+
       <canvas
         ref={canvasRef}
         width={500}
@@ -140,7 +169,7 @@ const Recorder = () => {
           }`}
           disabled={isRecording || isLoading}
         >
-          {isRecording ? "Recording..." : "Start Recording"}
+          {isRecording ? `Recording... (${timer}s)` : "Start Recording"}
         </button>
         <button
           onClick={clearTranscription}
