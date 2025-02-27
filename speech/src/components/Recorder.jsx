@@ -7,32 +7,25 @@ const Recorder = () => {
   const [transcription, setTranscription] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [language, setLanguage] = useState("en-US");
-  const [timer, setTimer] = useState(30); // Timer state
+  const [timer, setTimer] = useState(5);
+  const [copied, setCopied] = useState(false);
+  
   const canvasRef = useRef(null);
   const audioContextRef = useRef(null);
   const analyserRef = useRef(null);
   const animationRef = useRef(null);
-  const timerRef = useRef(null); // Ref for interval
+  const timerRef = useRef(null);
 
-  useEffect(() => {
-    if (isRecording) {
-      setTimer(30); // Reset timer when recording starts
-      timerRef.current = setInterval(() => {
-        setTimer((prevTime) => {
-          if (prevTime <= 1) {
-            clearInterval(timerRef.current);
-            return 0;
-          }
-          return prevTime - 1;
-        });
-      }, 1000);
-    } else {
-      clearInterval(timerRef.current);
+  // Function to copy transcription to clipboard
+  const handleCopyToClipboard = () => {
+    if (transcription) {
+      navigator.clipboard.writeText(transcription);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500); // Hide "Copied!" message after 1.5 seconds
     }
+  };
 
-    return () => clearInterval(timerRef.current); // Cleanup on unmount
-  }, [isRecording]);
-
+  // Visualization logic
   const drawVisualizer = () => {
     const canvas = canvasRef.current;
     const canvasCtx = canvas.getContext("2d");
@@ -99,19 +92,37 @@ const Recorder = () => {
     }
   };
 
+  const startTimer = () => {
+    setTimer(5);
+    timerRef.current = setInterval(() => {
+      setTimer((prev) => {
+        if (prev <= 1) {
+          clearInterval(timerRef.current);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
+  const stopTimer = () => {
+    clearInterval(timerRef.current);
+    setTimer(0);
+  };
+
   const handleRecordAndTranscribe = async () => {
     setIsRecording(true);
     setTranscription(""); // Clear previous transcription
     startVisualization(); // Start real-time visualization
-
+    startTimer(); // Start countdown timer
     try {
       // Start recording
-      await axios.post("http://127.0.0.1:5000/record", { duration: 30 });
+      await axios.post("http://127.0.0.1:5000/record", { duration: 5 });
       alert("Recording finished.");
 
-      // Stop visualization
+      // Stop visualization & timer
       stopVisualization();
-      setIsRecording(false);
+      stopTimer();
 
       // Start transcription immediately after recording
       setIsLoading(true);
@@ -122,6 +133,7 @@ const Recorder = () => {
     } catch (error) {
       console.error("Error during recording or transcription:", error);
     } finally {
+      setIsRecording(false);
       setIsLoading(false);
       stopVisualization(); // Ensure visualization is stopped
     }
@@ -143,15 +155,14 @@ const Recorder = () => {
           onChange={(e) => setLanguage(e.target.value)}
           className="ml-2 p-2 border border-gray-300 rounded"
         >
-          {/* <option value="en-US">English (US)</option> */}
           <option value="ne-NP">Nepali</option>
         </select>
       </div>
 
       {/* Timer Display */}
       {isRecording && (
-        <div className="timer mb-4 text-lg font-bold text-red-600">
-          Recording Time Left: {timer}s
+        <div className="timer text-lg font-semibold text-red-600 mb-4">
+          Recording... {timer}s
         </div>
       )}
 
@@ -161,6 +172,7 @@ const Recorder = () => {
         height={150}
         className="border border-gray-300 mb-4"
       />
+
       <div className="buttons flex space-x-4 mb-4">
         <button
           onClick={handleRecordAndTranscribe}
@@ -169,7 +181,7 @@ const Recorder = () => {
           }`}
           disabled={isRecording || isLoading}
         >
-          {isRecording ? `Recording... (${timer}s)` : "Start Recording"}
+          {isRecording ? "Recording..." : "Start Recording"}
         </button>
         <button
           onClick={clearTranscription}
@@ -178,12 +190,24 @@ const Recorder = () => {
           Clear Text
         </button>
       </div>
-      <div className="transcription bg-white p-4 rounded-lg shadow-md w-full">
+
+      {/* Transcription Section */}
+      <div className="transcription bg-white p-4 rounded-lg shadow-md w-full relative">
         <h3 className="text-lg font-bold mb-2">Live Transcription:</h3>
         {isLoading ? (
           <p className="text-gray-500">Processing transcription...</p>
         ) : (
           <p className="text-gray-700">{transcription || "Listening..."}</p>
+        )}
+
+        {/* Copy Button */}
+        {transcription && (
+          <button
+            onClick={handleCopyToClipboard}
+            className="absolute top-3 right-3 bg-gray-200 px-3 py-1 rounded text-sm hover:bg-gray-300"
+          >
+            {copied ? "Copied!" : "Copy"}
+          </button>
         )}
       </div>
     </div>
