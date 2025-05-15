@@ -1,12 +1,14 @@
 /* eslint-disable no-unused-vars */
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import axios from "axios";
 
 const Recorder = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [transcription, setTranscription] = useState("");
+  const [translatedText, setTranslatedText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [isTranslating, setIsTranslating] = useState(false);
 
   const canvasRef = useRef(null);
   const audioContextRef = useRef(null);
@@ -23,6 +25,7 @@ const Recorder = () => {
 
   const handleClearTranscription = () => {
     setTranscription("");
+    setTranslatedText("");
   };
 
   const drawVisualizer = () => {
@@ -94,6 +97,7 @@ const Recorder = () => {
   const handleStartRecording = async () => {
     setIsRecording(true);
     setTranscription("");
+    setTranslatedText("");
     startVisualization();
 
     try {
@@ -123,10 +127,41 @@ const Recorder = () => {
     }
   };
 
+  const handleTranslateToEnglish = async () => {
+    if (!transcription) return;
+    setIsTranslating(true);
+    setTranslatedText("");
+
+    try {
+      const res = await fetch(
+        `https://translate.googleapis.com/translate_a/single?client=gtx&sl=ne&tl=en&dt=t&q=${encodeURIComponent(transcription)}`
+      );
+
+      const result = await res.json();
+      console.log(result);
+
+      const translation = result[0].map((item) => item[0]).join("");
+      setTranslatedText(translation || "Translation not available.");
+    } catch (error) {
+      console.error("Translation error:", error);
+      setTranslatedText("Translation failed.");
+    } finally {
+      setIsTranslating(false);
+    }
+  };
+
   return (
     <div className="main-content flex flex-col items-center p-6 bg-gray-100 rounded-lg shadow-md w-2/3 mx-auto mt-20">
-      <p className="bg-green-400" > <strong>Nepali Speech-to-Text Converter</strong></p>
-      <canvas ref={canvasRef} width={600} height={300} className="border border-gray-300 mb-4 mt-5" />
+      <p className="bg-green-400 px-4 py-2 rounded text-white font-bold mb-4">
+        Nepali Speech-to-Text Converter
+      </p>
+
+      <canvas
+        ref={canvasRef}
+        width={600}
+        height={300}
+        className="border border-gray-300 mb-4 mt-5"
+      />
 
       <div className="buttons flex space-x-4 mb-4">
         <button
@@ -138,6 +173,7 @@ const Recorder = () => {
         >
           {isRecording ? "Recording..." : "Start Recording"}
         </button>
+
         {transcription ? (
           <button
             onClick={handleClearTranscription}
@@ -160,6 +196,7 @@ const Recorder = () => {
 
       <div className="transcription bg-white p-4 rounded-lg shadow-md w-full relative">
         <h3 className="text-lg font-bold mb-2">Live Transcription:</h3>
+
         {isLoading ? (
           <p className="text-gray-500">Processing transcription...</p>
         ) : (
@@ -167,14 +204,30 @@ const Recorder = () => {
         )}
 
         {transcription && (
-          <button
-            onClick={handleCopyToClipboard}
-            className="absolute top-3 right-3 bg-gray-200 px-3 py-1 rounded text-sm hover:bg-gray-300"
-          >
-            {copied ? "Copied!" : "Copy"}
-          </button>
+          <>
+            <button
+              onClick={handleCopyToClipboard}
+              className="absolute top-3 right-3 bg-gray-200 px-3 py-1 rounded text-sm hover:bg-gray-300"
+            >
+              {copied ? "Copied!" : "Copy"}
+            </button>
+
+            <button
+              onClick={handleTranslateToEnglish}
+              className="absolute top-3 right-20 bg-blue-200 px-3 py-1 rounded text-sm hover:bg-blue-300"
+            >
+              {isTranslating ? "Translating..." : "Translate"}
+            </button>
+          </>
         )}
       </div>
+
+      {translatedText && (
+        <div className="translated-text bg-blue-50 mt-4 p-4 rounded-lg shadow-inner w-full">
+          <h3 className="text-md font-semibold mb-2">Translated to English:</h3>
+          <p className="text-gray-700">{translatedText}</p>
+        </div>
+      )}
     </div>
   );
 };
